@@ -55,13 +55,13 @@ function buildEmptySchedule() {
                 if (distinguishGender) {
                     for (let g of ['M', 'F']) {
                         let gSlots = arr.filter(s => s.gender === g);
-                        for (let i = 0; i < slotMax; i++) {
+                        for (let i = 0; i < Math.ceil(slotMax); i++) {
                             newArr.push({ gender: g, name: gSlots[i] ? gSlots[i].name : null });
                         }
                     }
                 } else {
                     let assigned = arr.filter(s => s.name);
-                    for (let i = 0; i < slotMax; i++) {
+                    for (let i = 0; i < Math.ceil(slotMax); i++) {
                         newArr.push({ gender: 'none', name: assigned[i] ? assigned[i].name : null });
                     }
                 }
@@ -79,12 +79,12 @@ function buildEmptySchedule() {
                 let slots = [];
                 if (distinguishGender) {
                     for (let g of ['M', 'F']) {
-                        for (let i = 0; i < slotMax; i++) {
+                        for (let i = 0; i < Math.ceil(slotMax); i++) {
                             slots.push({ gender: g, name: null });
                         }
                     }
                 } else {
-                    for (let i = 0; i < slotMax; i++) {
+                    for (let i = 0; i < Math.ceil(slotMax); i++) {
                         slots.push({ gender: 'none', name: null });
                     }
                 }
@@ -307,12 +307,11 @@ function fillSlots(slots, studentsObj, enforceMin, assignmentsByDay) {
                 cands = cands.filter(s => s.gender === 'M');
             }
             
-            // NA模式规则：每人一周一班，最多两周三班
-            // slotMax=1: 限制1次（一周一班）
-            // slotMax=2: 限制1.5次（两周三班）
+            // NA模式规则：班次限制
+            // 直接使用slotMax作为每人最多班次（支持0.5单位）
+            // 例如：slotMax=1（一周一班）、slotMax=1.5（两周三班）、slotMax=2（一周两班）
             if (scheduleMode === 'NA') {
-                const limit = slotMax === 1 ? 1 : 1.5;
-                cands = cands.filter(s => s.assigned < limit);
+                cands = cands.filter(s => s.assigned < slotMax);
             }
             
             posCandidates.push({ id, slots: slotGroup, cands, dayKey });
@@ -452,8 +451,8 @@ function saveSettings() {
     activeDayKeys = Array.from(cd).map(i => i.value);
     const cs = document.querySelectorAll('#settings-segments input:checked');
     activeSegKeys = Array.from(cs).map(i => i.value);
-    slotMin = parseInt(document.getElementById('settings-min').value) || 0;
-    slotMax = parseInt(document.getElementById('settings-max').value) || 1;
+    slotMin = parseFloat(document.getElementById('settings-min').value) || 0;
+    slotMax = parseFloat(document.getElementById('settings-max').value) || 1;
     if (slotMax < slotMin) slotMax = slotMin;
     const chk = document.getElementById('settings-distinguish-gender');
     const oldDistinguish = distinguishGender;

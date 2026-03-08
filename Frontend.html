@@ -1123,15 +1123,15 @@
                 <div class="checkbox-group" id="settings-segments"></div>
 
                 <div style="font-weight:600;font-size:13px;margin-bottom:8px;margin-top:16px;">每个性别单次排班人数</div>
-                <p style="font-size:12px; color:var(--text3); margin-bottom:12px;">智能排班会优先保证每个格子达到最少人数，多出的人将公平补充至最多内。
+                <p style="font-size:12px; color:var(--text3); margin-bottom:12px;">智能排班会优先保证每个格子达到最少人数，多出的人将公平补充至最多内。支持0.5为单位（如1.5表示两周三班）。
                 </p>
                 <div style="display:flex; gap: 12px; margin-bottom: 24px;">
                     <label style="font-size:13px; display:flex; align-items:center; gap:8px;">最少: <input type="number"
-                            id="settings-min" min="0" max="4"
-                            style="width:50px; padding:4px; border:1px solid var(--border); border-radius:4px;"></label>
+                            id="settings-min" min="0" max="4" step="0.5"
+                            style="width:60px; padding:4px; border:1px solid var(--border); border-radius:4px;"></label>
                     <label style="font-size:13px; display:flex; align-items:center; gap:8px;">最多: <input type="number"
-                            id="settings-max" min="1" max="4"
-                            style="width:50px; padding:4px; border:1px solid var(--border); border-radius:4px;"></label>
+                            id="settings-max" min="0.5" max="4" step="0.5"
+                            style="width:60px; padding:4px; border:1px solid var(--border); border-radius:4px;"></label>
                 </div>
 
                 <div
