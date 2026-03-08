@@ -417,7 +417,22 @@ function executeScheduling(isContinue) {
     const minSlots = allSlots.filter(s => s.isMin);
     const maxSlots = allSlots.filter(s => !s.isMin);
 
+    console.log('开始填充minSlots...');
     fillSlots(minSlots, acm, true, assignmentsByDay);
+    console.log('minSlots填充完成');
+    
+    // 检查填充结果
+    let filledCount = 0;
+    for (const k in schedule) {
+        const c = schedule[k];
+        if (c.split) {
+            ['odd', 'even'].forEach(w => c[w].forEach(sl => { if (sl.name) filledCount++; }));
+        } else {
+            c.slots.forEach(sl => { if (sl.name) filledCount++; });
+        }
+    }
+    console.log('填充后有名字的位置数:', filledCount);
+    console.log('schedule示例:', schedule['mon-seg4']);
     fillSlots(maxSlots, acm, false, assignmentsByDay);
 
     renderAll(); toast(isContinue ? '增量填充完成' : '排班完成', 'success');
