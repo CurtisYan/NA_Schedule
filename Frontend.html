@@ -1076,7 +1076,23 @@
                     排班设置
                 </div>
 
-                <div style="font-weight:600;font-size:13px;margin-bottom:8px;">排班模式</div>
+                <div style="font-weight:600;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                    排班模式
+                    <div class="tooltip-wrapper" style="height:auto;">
+                        <span class="material-symbols-outlined help-icon" style="font-size:16px;">help</span>
+                        <div class="tooltip-text" style="width:280px;">
+                            <strong>NA模式特色规则：</strong><br>
+                            • 女生不能去男生区<br>
+                            • 男生优先分配到男生区<br>
+                            • 班次限制：一周一班，最多两周三班<br>
+                            • 默认时段：7-8节、9-10节<br><br>
+                            <strong>自定义模式：</strong><br>
+                            • 无性别区域限制<br>
+                            • 无班次限制<br>
+                            • 灵活配置所有参数
+                        </div>
+                    </div>
+                </div>
                 <div style="display:flex; gap:16px; margin-bottom:16px;">
                     <label style="font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
                         <input type="radio" name="scheduleMode" value="NA" checked

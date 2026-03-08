@@ -307,9 +307,12 @@ function fillSlots(slots, studentsObj, enforceMin, assignmentsByDay) {
                 cands = cands.filter(s => s.gender === 'M');
             }
             
-            // NA模式规则：每人一周一班，最多两周三班（1.5次）
+            // NA模式规则：每人一周一班，最多两周三班
+            // slotMax=1: 限制1次（一周一班）
+            // slotMax=2: 限制1.5次（两周三班）
             if (scheduleMode === 'NA') {
-                cands = cands.filter(s => s.assigned < 1.5);
+                const limit = slotMax === 1 ? 1 : 1.5;
+                cands = cands.filter(s => s.assigned < limit);
             }
             
             posCandidates.push({ id, slots: slotGroup, cands, dayKey });
