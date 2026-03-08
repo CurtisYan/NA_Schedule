@@ -639,15 +639,22 @@
         }
 
         .slot-row {
+            position: relative;
             display: flex;
             align-items: center;
             gap: 6px;
             padding: 8px;
             border-bottom: 1px solid var(--border);
-            min-height: 38px;
+            min-height: 42px;
             cursor: pointer;
             transition: background .1s;
-            flex: 1;
+        }
+        
+        .slot-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: auto;
         }
 
         .slot-row:last-child {
@@ -660,6 +667,10 @@
 
         .slot-row.female-slot {
             background: var(--female-bg);
+        }
+
+        .slot-row.neutral-slot {
+            background: #f8fafc;
         }
 
         .slot-row:hover {
@@ -831,10 +842,23 @@
         .modal {
             background: var(--surface);
             border-radius: var(--radius-xl);
-            padding: 32px;
             width: 480px;
+            max-width: 90vw;
+            max-height: 90vh;
             box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
+
+        .modal-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+            padding-bottom: 20px;
+        }
+
+        
 
         .modal-title {
             font-size: 18px;
@@ -875,7 +899,10 @@
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            margin-top: 24px;
+            padding: 16px 32px;
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+            flex-shrink: 0;
         }
 
         .checkbox-group {
