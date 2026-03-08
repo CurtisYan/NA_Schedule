@@ -403,13 +403,12 @@ function executeScheduling(isContinue) {
         return { ...s, activeFreeLength: aFree.length, assigned: assignedCount[s.name] };
     });
 
-    // 调试信息
-    console.log('激活的学生数:', active.length);
-    console.log('激活的日期:', activeDayKeys);
-    console.log('激活的时间段:', activeSegKeys);
-    console.log('待填充的位置数:', allSlots.length);
-    console.log('学生空闲时间示例:', active.slice(0, 3).map(s => ({ name: s.name, freeSlots: s.freeSlots })));
-    console.log('处理后的学生:', acm.slice(0, 3).map(s => ({ name: s.name, activeFreeLength: s.activeFreeLength })));
+    // 调试：查看学生空闲时间格式
+    if (active.length > 0) {
+        console.log('第一个学生的完整信息:', active[0]);
+        console.log('第一个学生的freeSlots:', active[0].freeSlots);
+        console.log('期望的格式示例: mon-seg4, tue-seg5');
+    }
 
     const minSlots = allSlots.filter(s => s.isMin);
     const maxSlots = allSlots.filter(s => !s.isMin);
