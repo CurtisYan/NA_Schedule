@@ -405,9 +405,11 @@ function executeScheduling(isContinue) {
 
     // 调试：查看学生空闲时间格式
     if (active.length > 0) {
-        console.log('第一个学生的完整信息:', active[0]);
-        console.log('第一个学生的freeSlots:', active[0].freeSlots);
-        console.log('期望的格式示例: mon-seg4, tue-seg5');
+        console.log('第一个学生原始freeSlots:', active[0].freeSlots);
+        console.log('第一个学生处理后freeSlots:', acm[0].freeSlots);
+        console.log('第一个学生activeFreeLength:', acm[0].activeFreeLength);
+        console.log('当前激活的时间段:', activeSegKeys);
+        console.log('allSlots示例:', allSlots.slice(0, 2));
     }
 
     const minSlots = allSlots.filter(s => s.isMin);
