@@ -301,6 +301,17 @@ function fillSlots(slots, studentsObj, enforceMin, assignmentsByDay) {
                 !cellNames.includes(s.name) &&
                 isFreeFor(s, firstSlot.key, firstSlot.week)
             );
+            
+            // NA模式规则：女生不能去男生区
+            if (scheduleMode === 'NA' && firstSlot.g === 'M') {
+                cands = cands.filter(s => s.gender === 'M');
+            }
+            
+            // NA模式规则：每人一周一班，最多两周三班（1.5次）
+            if (scheduleMode === 'NA') {
+                cands = cands.filter(s => s.assigned < 1.5);
+            }
+            
             posCandidates.push({ id, slots: slotGroup, cands, dayKey });
         }
         posCandidates.sort((a, b) => a.cands.length - b.cands.length);
