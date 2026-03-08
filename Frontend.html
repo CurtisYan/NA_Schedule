@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>智能排班系统 - Smart Scheduling</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --surface2: #f8fafc;
+            --border: #e2e8f0;
+            --border2: #cbd5e1;
+            --text: #0f172a;
+            --text2: #475569;
+            --text3: #94a3b8;
+            --male-bg: #eff6ff;
+            --male-border: #bfdbfe;
+            --male-text: #3b82f6;
+            --female-bg: #fdf2f8;
+            --female-border: #fbcfe8;
+            --female-text: #ec4899;
+            --danger: #ef4444;
+            --danger-bg: #fef2f2;
+            --danger-border: #fecaca;
+            --success: #22c55e;
+            --warn: #f59e0b;
+            --radius: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, .08), 0 2px 4px -1px rgba(0, 0, 0, .05);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo .material-symbols-outlined {
+            color: var(--primary);
+            font-size: 28px;
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            height: 100%;
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+            outline: none;
+            transition: all .15s;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 0 16px;
+            height: 38px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background: #fff;
+            color: var(--primary);
+            border: 1.5px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: #eff6ff;
+        }
+
+        .btn-ghost {
+            background: #f1f5f9;
+            color: var(--text2);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--border);
+        }
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            background: var(--border);
+        }
+
+        .tooltip-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 100%;
+        }
+
+        .help-icon {
+            font-size: 18px;
+            color: var(--text3);
+            cursor: help;
+            display: flex;
+            align-items: center;
+        }
+
+        .help-icon:hover {
+            color: var(--primary);
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 220px;
+            background: #1e293b;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 12px;
+            font-weight: normal;
+            line-height: 1.5;
+            position: absolute;
+            z-index: 1000;
+            top: calc(100% - 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.2s, top 0.2s;
+            pointer-events: none;
+            white-space: normal;
+            box-shadow: var(--shadow-md);
+        }
+
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent #1e293b transparent;
+        }
+
+        .tooltip-wrapper:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            top: calc(100% - 2px);
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: auto auto 1fr auto;
+            gap: 16px;
+            padding: 16px 20px 20px 20px;
+            width: 100%;
+            max-width: 1920px;
+            margin: 0 auto;
+            height: calc(100vh - 60px);
+        }
+
+        .student-panel {
+            grid-column: 1;
+            grid-row: 1 / 4;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 16px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            color: var(--text2);
+            font-weight: 600;
+        }
+
+        .student-list {
+            flex: 1;
+            min-height: 0;
+            max-height: calc(100vh - 220px);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 4px;
+        }
+
+        .student-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .student-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .student-list::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 4px;
+        }
+
+        .student-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: var(--surface2);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            transition: all .15s;
+        }
+
+        .student-item.unchecked {
+            opacity: .55;
+        }
+
+        .student-item-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .student-item-left input[type=checkbox] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .student-info .name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .student-info .slots {
+            font-size: 10px;
+            color: var(--text3);
+            margin-top: 1px;
+        }
+
+        .gender-btn {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all .15s;
+            user-select: none;
+        }
+
+        .gender-btn.male {
+            background: var(--male-bg);
+            color: var(--male-text);
+            border: 1px solid var(--male-border);
+        }
+
+        .gender-btn.female {
+            background: var(--female-bg);
+            color: var(--female-text);
+            border: 1px solid var(--female-border);
+        }
+
+        .add-student-form {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .add-student-form input {
+            flex: 1;
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-family: inherit;
+            background: var(--surface2);
+        }
+
+        .add-student-form input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .add-student-form button {
+            padding: 7px 12px;
+            background: var(--primary);
+            color: #fff;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .right-col {
+            grid-column: 2;
+            display: contents;
+        }
+
+        .pool-panel {
+            grid-column: 2;
+            grid-row: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 14px 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .pool-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .pool-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 38px;
+        }
+
+        .person-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--surface);
+            border: 1.5px solid var(--border2);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            cursor: grab;
+            transition: all .15s;
+            user-select: none;
+        }
+
+        .person-chip:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .person-chip.dragging {
+            opacity: .4;
+        }
+
+        .person-chip .material-symbols-outlined {
+            font-size: 14px;
+        }
+
+        .person-chip .chip-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .chip-stat {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .chip-stat.ok {
+            background: #f1f5f9;
+            color: var(--text3);
+        }
+
+        .chip-stat.warn {
+            background: #fef3c7;
+            color: var(--warn);
+        }
+
+        .chip-stat.conflict {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .chip-stat.overload {
+            background: #dbeafe;
+            color: var(--primary);
+        }
+
+        .schedule-panel {
+            grid-column: 2;
+            grid-row: 2 / 4;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-wrap {
+            overflow: auto;
+            flex: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            height: 100%;
+            min-width: 800px;
+        }
+
+        thead tr {
+            background: #f8fafc;
+        }
+
+        th {
+            padding: 10px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text2);
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        th:first-child {
+            width: 110px;
+            text-align: left;
+            padding-left: 16px;
+            position: sticky;
+            left: 0;
+            background: #f8fafc;
+            z-index: 10;
+            border-right: 1px solid var(--border);
+        }
+
+        td {
+            padding: 6px;
+            vertical-align: top;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td:first-child {
+            padding: 12px 8px 12px 16px;
+            background: #f8fafc;
+            vertical-align: middle;
+            border-right: 1px solid var(--border);
+            position: sticky;
+            left: 0;
+            z-index: 9;
+        }
+
+        .time-label .seg {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .time-label .time {
+            font-size: 10px;
+            color: var(--text3);
+            margin-top: 4px;
+            white-space: pre-wrap;
+        }
+
+        .sched-cell {
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface);
+            min-height: 90px;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sched-cell.drag-over {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .sched-cell.conflict {
+            border-color: var(--danger);
+            background: var(--danger-bg);
+        }
+
+        .sched-cell.disabled {
+            background: #f8fafc;
+            border-style: dashed;
+            border-color: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 90px;
+        }
+
+        .cell-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border);
+            background: #f8fafc;
+        }
+
+        .cell-id {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--text3);
+        }
+
+        .split-btn {
+            font-size: 10px;
+            color: var(--primary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background .15s;
+        }
+
+        .split-btn:hover {
+            background: #eff6ff;
+        }
+
+        .cell-conflict-label {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--danger);
+        }
+
+        .slots-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .slots-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-top: 1px solid var(--border);
+            flex: 1;
+        }
+
+        .split-col {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .split-col:first-child {
+            border-right: 1px solid var(--border);
+        }
+
+        .split-week-label {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 4px 6px;
+            color: var(--text3);
+            background: #f8fafc;
+            border-bottom: 1px dashed var(--border);
+            text-align: center;
+        }
+
+        .slot-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px;
+            border-bottom: 1px solid var(--border);
+            min-height: 38px;
+            cursor: pointer;
+            transition: background .1s;
+            flex: 1;
+        }
+
+        .slot-row:last-child {
+            border-bottom: none;
+        }
+
+        .slot-row.male-slot {
+            background: var(--male-bg);
+        }
+
+        .slot-row.female-slot {
+            background: var(--female-bg);
+        }
+
+        .slot-row:hover {
+            filter: brightness(.97);
+        }
+
+        .slot-row.drag-over-slot {
+            outline: 2px dashed var(--primary);
+            outline-offset: -2px;
+        }
+
+        .slot-icon {
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .slot-icon.male {
+            color: var(--male-text);
+        }
+
+        .slot-icon.female {
+            color: var(--female-text);
+        }
+
+        .slot-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
+        .slot-name.empty {
+            color: var(--text3);
+            font-weight: 400;
+            font-style: italic;
+        }
+
+        .slot-conflict-icon {
+            font-size: 14px;
+            color: var(--danger);
+            flex-shrink: 0;
+        }
+
+        .remove-btn {
+            font-size: 14px;
+            color: var(--text3);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+            display: flex;
+        }
+
+        .slot-row:hover .remove-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .remove-btn:hover {
+            color: var(--danger);
+            background: var(--danger-bg);
+        }
+
+        footer {
+            grid-column: 1 / -1;
+            grid-row: 4;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+            margin-top: -4px;
+        }
+
+        .footer-stats {
+            display: flex;
+            gap: 24px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text2);
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .footer-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast-msg {
+            padding: 12px 18px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all .3s;
+            pointer-events: none;
+        }
+
+        .toast-msg.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast-msg.success {
+            background: var(--success);
+        }
+
+        .toast-msg.error {
+            background: var(--danger);
+        }
+
+        .toast-msg.warn {
+            background: var(--warn);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .5);
+            backdrop-filter: blur(3px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            width: 480px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--border2);
+            border-radius: var(--radius-lg);
+            padding: 48px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .15s;
+            background: var(--surface2);
+        }
+
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: var(--primary);
+            background: #eff6ff;
+            color: var(--primary);
+        }
+
+        .drop-zone .material-symbols-outlined {
+            font-size: 48px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .drop-zone p {
+            font-size: 14px;
+            color: var(--text2);
+            font-weight: 500;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: all 0.15s;
+        }
+
+        .checkbox-label:hover {
+            background: var(--surface2);
+        }
+
+        .checkbox-label input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
+        }
+
+        .checkbox-label.active {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            <span class="material-symbols-outlined">calendar_month</span>
+            <h1>智能排班系统</h1>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="openImport()">
+                <span class="material-symbols-outlined" style="font-size:18px">upload_file</span>导入表格
+            </button>
+            <div class="tooltip-wrapper">
+                <button class="btn btn-primary" onclick="runScheduler()">
+                    <span class="material-symbols-outlined" style="font-size:18px">auto_fix_high</span>开始智能排班
+                </button>
+                <div class="tooltip-text">清空当前分配（包括手动拖拽），重新智能计算所有人班次。</div>
+            </div>
+            <div class="tooltip-wrapper">
+                <button class="btn btn-outline" onclick="continueSchedule()">
+                    <span class="material-symbols-outlined" style="font-size:18px">play_arrow</span>继续排班
+                </button>
+                <div class="tooltip-text">保留当前已有班次，仅自动填充未安排的空余时段。</div>
+            </div>
+            <button class="icon-btn" title="设置" onclick="openSettings()">
+                <span class="material-symbols-outlined" style="font-size:22px;color:var(--text2)">settings</span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <div class="student-panel">
+            <div class="panel-header"><span class="panel-title">学生名单<span
+                        style="font-size:12px; color:var(--text3); font-weight:normal; margin-left:8px;">点击性别标签切换性别</span></span><span
+                    class="badge" id="student-count">共 0
+                    人</span></div>
+            <div class="student-list" id="student-list"></div>
+            <div class="add-student-form">
+                <input type="text" id="new-student-name" placeholder="输入姓名，回车添加" maxlength="20" />
+                <button onclick="addStudentFromInput()">添加</button>
+            </div>
+        </div>
+        <div class="pool-panel">
+            <div class="pool-header">
+                <span class="material-symbols-outlined" style="font-size:20px;color:var(--primary)">group</span>人员池（待分配）
+                <span class="badge" id="pool-count">0 人参与</span>
+            </div>
+            <div class="pool-chips" id="pool-chips"></div>
+        </div>
+        <div class="schedule-panel">
+            <div class="table-wrap">
+                <table id="schedule-table">
+                    <thead id="schedule-head">
+                        <tr></tr>
+                    </thead>
+                    <tbody id="schedule-body"></tbody>
+                </table>
+            </div>
+        </div>
+        <footer>
+            <div class="footer-stats">
+                <div class="stat-item">
+                    <div class="dot" style="background:var(--male-text)"></div><span id="stat-male">男生人数: 0</span>
+                </div>
+                <div class="stat-item">
+                    <div class="dot" style="background:var(--female-text)"></div><span id="stat-female">女生人数: 0</span>
+                </div>
+                <div class="stat-item"><span class="material-symbols-outlined"
+                        style="font-size:16px;color:var(--success)">check_circle</span><span id="stat-filled">已排班:
+                        0%</span></div>
+            </div>
+            <div class="footer-actions">
+                <button class="btn btn-ghost" onclick="exportCSV()">导出排班表</button>
+                <button class="btn btn-primary" onclick="saveSchedule()">保存并生效</button>
+            </div>
+        </footer>
+    </main>
+
+    <div class="overlay" id="import-overlay">
+        <div class="modal">
+            <div class="modal-title">导入表格</div>
+            <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                <span class="material-symbols-outlined">upload_file</span>
+                <p>点击或拖拽 Excel/CSV 文件到此处</p>
+                <p style="font-size:12px;margin-top:8px;color:var(--text3)">自动提取无课表</p>
+            </div>
+            <input type="file" id="file-input" accept=".csv,.xlsx,.xls" style="display:none"
+                onchange="handleFileInput(event)" />
+            <div class="modal-footer"><button class="btn btn-ghost" onclick="closeImport()">取消</button></div>
+        </div>
+    </div>
+
+    <div class="overlay" id="settings-overlay">
+        <div class="modal">
+            <div class="modal-title">排班时间段设置</div>
+            <p style="font-size:13px; color:var(--text2); margin-bottom:12px;">勾选本次需要进行排班的时间段（默认 7-8节、9-10节）</p>
+            <div class="checkbox-group" id="settings-segments"></div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeSettings()">取消</button>
+                <button class="btn btn-primary" onclick="saveSettings()">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        const ALL_SEGS = [
+            { key: 'seg1', label: '1-2节', time: '09:00-10:20' },
+            { key: 'seg2', label: '3-4节', time: '10:40-12:00' },
+            { key: 'seg3', label: '5-6节', time: '12:30-13:50' },
+            { key: 'seg4', label: '7-8节', time: '14:00-15:20' },
+            { key: 'seg5', label: '9-10节', time: '15:30-16:50' },
+            { key: 'seg6', label: '11-12节', time: '17:00-18:20' },
+            { key: 'seg7', label: '13-14节', time: '19:00-20:20' },
+            { key: 'seg8', label: '15-16节', time: '20:30-21:50' },
+        ];
+        let activeSegKeys = ['seg4', 'seg5']; // default 7-8, 9-10
+
+        let DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        let DAYS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+
+        let students = [];
+        let schedule = {};
+        let dragSource = null;
+
+        function getActiveSegs() { return ALL_SEGS.filter(s => activeSegKeys.includes(s.key)); }
+
+        function init() {
+            buildEmptySchedule();
+            renderAll();
+        }
+
+        function buildEmptySchedule() {
+            const newSched = {};
+            for (const day of DAY_KEYS) {
+                for (const seg of getActiveSegs()) {
+                    const key = `${day}-${seg.key}`;
+                    newSched[key] = schedule[key] || { split: false, slots: [{ gender: 'M', name: null }, { gender: 'F', name: null }] };
+                }
+            }
+            schedule = newSched;
+        }
+
+        let _sid = 1;
+        function addStudent(name, gender = 'M', freeSlots = []) {
+            name = name.trim();
+            if (!name) return;
+            const ex = students.find(s => s.name === name);
+            if (ex) { ex.freeSlots = [...new Set([...ex.freeSlots, ...freeSlots])]; }
+            else { students.push({ id: _sid++, name, gender, active: true, freeSlots }); }
+            renderAll();
+        }
+
+        function toggleGender(id) { const s = students.find(s => s.id === id); if (s) { s.gender = s.gender === 'M' ? 'F' : 'M'; renderAll(); } }
+        function toggleActive(id) { const s = students.find(s => s.id === id); if (s) { s.active = !s.active; if (!s.active) clearStudentFromSchedule(s.name); renderAll(); } }
+
+        function clearStudentFromSchedule(name) {
+            for (const k in schedule) {
+                const c = schedule[k];
+                if (c.split) { ['odd', 'even'].forEach(w => c[w].forEach(sl => { if (sl.name === name) sl.name = null })); }
+                else { c.slots.forEach(sl => { if (sl.name === name) sl.name = null; }); }
+            }
+        }
+        function addStudentFromInput() { const i = document.getElementById('new-student-name'); addStudent(i.value, 'M', []); i.value = ''; i.focus(); }
+
+        function renderAll() {
+            renderStudentList(); renderPool(); renderScheduleTable(); renderFooter();
+        }
+
+        function renderStudentList() {
+            const l = document.getElementById('student-list');
+            document.getElementById('student-count').textContent = `共 ${students.length} 人`;
+            l.innerHTML = '';
+            students.forEach(s => {
+                const ac = countAssignments(s.name);
+                // filter free slots to only count active segments
+                const activeFree = s.freeSlots.filter(fs => activeSegKeys.some(k => fs.endsWith(`-${k}`)));
+                const d = document.createElement('div');
+                d.className = `student-item${s.active ? '' : ' unchecked'}`;
+                d.innerHTML = `
+      <div class="student-item-left"><input type="checkbox" ${s.active ? 'checked' : ''} onchange="toggleActive(${s.id})"/>
+      <div class="student-info"><div class="name">${s.name}</div><div class="slots">空闲排班: ${activeFree.length} &nbsp;·&nbsp; 已排: ${ac}</div></div></div>
+      <button class="gender-btn ${s.gender === 'M' ? 'male' : 'female'}" onclick="toggleGender(${s.id})">${s.gender === 'M' ? '男' : '女'}</button>`;
+                l.appendChild(d);
+            });
+        }
+
+        function renderPool() {
+            const p = document.getElementById('pool-chips');
+            const active = students.filter(s => s.active);
+            document.getElementById('pool-count').textContent = `${active.length} 人参与`;
+            p.innerHTML = '';
+            const max = Math.ceil((DAY_KEYS.length * getActiveSegs().length * 2) / (active.length || 1));
+            active.forEach(s => {
+                const c = countAssignments(s.name);
+                const hc = checkStudentConflict(s);
+                const d = document.createElement('div');
+                d.className = `person-chip${hc ? ' chip-conflict' : ''}`; d.draggable = true; d.dataset.name = s.name;
+                if (hc) { d.style.borderColor = 'var(--danger)'; d.style.background = 'var(--danger-bg)'; }
+                let sc = 'ok', st = `${c}班`;
+                if (hc) { sc = 'conflict'; st = '冲突'; } else if (c >= max && max > 0) { sc = 'overload'; }
+                d.innerHTML = `<span class="material-symbols-outlined ${s.gender === 'M' ? 'male' : 'female'}" style="color:var(--${s.gender === 'M' ? 'male' : 'female'}-text)">${s.gender === 'M' ? 'male' : 'female'}</span><span class="chip-name">${s.name}</span><span class="chip-stat ${sc}">${st}</span>`;
+                d.ondragstart = e => { dragSource = { type: 'pool', studentName: s.name }; e.dataTransfer.setData('text/plain', s.name); };
+                p.appendChild(d);
+            });
+        }
+
+        function countAssignments(name) {
+            let c = 0;
+            for (const k in schedule) {
+                const cell = schedule[k];
+                if (cell.split) ['odd', 'even'].forEach(w => cell[w].forEach(sl => { if (sl.name === name) c += 0.5; }));
+                else cell.slots.forEach(sl => { if (sl.name === name) c++; });
+            } return c;
+        }
+
+        function checkStudentConflict(s) {
+            for (const k in schedule) {
+                const c = schedule[k], wks = c.split ? ['odd', 'even'] : [null];
+                for (const w of wks) {
+                    const slts = w ? c[w] : c.slots;
+                    for (const sl of slts) if (sl.name === s.name && s.gender === 'F' && sl.gender === 'M') return true;
+                }
+            } return false;
+        }
+
+        function renderScheduleTable() {
+            const th = document.getElementById('schedule-head');
+            th.innerHTML = `<tr><th>时间 / 星期</th>${DAYS.map(d => `<th>${d}</th>`).join('')}</tr>`;
+            const tb = document.getElementById('schedule-body');
+            tb.innerHTML = '';
+            let id = 1;
+            getActiveSegs().forEach(seg => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td><div class="time-label"><div class="seg">${seg.label}</div><div class="time">${seg.time}</div></div></td>`;
+                DAY_KEYS.forEach(day => {
+                    const k = `${day}-${seg.key}`;
+                    const c = schedule[k];
+                    const td = document.createElement('td');
+                    if (c) { td.innerHTML = renderCell(k, c, id++); td.querySelector('.sched-cell').ondragover = e => e.preventDefault(); }
+                    tr.appendChild(td);
+                });
+                tb.appendChild(tr);
+            });
+        }
+
+        function renderCell(k, c, id) {
+            const hc = checkCellConflict(c), cc = hc ? ' conflict' : '';
+            const head = `<div class="cell-header">${hc ? `<span class="cell-conflict-label">冲突</span>` : `<span class="cell-id">#${String(id).padStart(3, '0')}</span>`}<button class="split-btn" onclick="${c.split ? `unsplitCell('${k}')` : `splitCell('${k}')`}">${c.split ? '合并' : '单双周'}</button></div>`;
+            if (c.split) return `<div class="sched-cell${cc}" data-key="${k}">${head}<div class="slots-split"><div class="split-col"><div class="split-week-label">单周</div>${c.odd.map((sl, i) => renderSlotRow(sl, k, i, 'odd')).join('')}</div><div class="split-col"><div class="split-week-label">双周</div>${c.even.map((sl, i) => renderSlotRow(sl, k, i, 'even')).join('')}</div></div></div>`;
+            return `<div class="sched-cell${cc}" data-key="${k}">${head}<div class="slots-container">${c.slots.map((sl, i) => renderSlotRow(sl, k, i)).join('')}</div></div>`;
+        }
+
+        function renderSlotRow(sl, k, idx, w = null) {
+            const wa = w ? `data-week="${w}"` : '';
+            const hc = sl.name && checkSlotConflict(sl), ci = hc ? `<span class="material-symbols-outlined slot-conflict-icon">error</span>` : '';
+            const rb = sl.name ? `<button class="remove-btn" onclick="removeFromSlot('${k}',${idx}${w ? `,'${w}'` : ''})" title="移除"><span class="material-symbols-outlined">close</span></button>` : '';
+            return `<div class="slot-row ${sl.gender === 'M' ? 'male-slot' : 'female-slot'}" data-key="${k}" data-idx="${idx}" ${wa} ondragover="event.preventDefault();this.classList.add('drag-over-slot')" ondragleave="this.classList.remove('drag-over-slot')" ondrop="onDrop(event,this,'${k}',${idx},'${w || ''}')" ondragstart="onSlotDragStart(event,this)">
+    <span class="material-symbols-outlined slot-icon ${sl.gender === 'M' ? 'male' : 'female'}">${sl.gender === 'M' ? 'male' : 'female'}</span><span class="slot-name ${sl.name ? '' : 'empty'}">${sl.name || '待分配'}</span>${ci}${rb}</div>`;
+        }
+
+        function checkCellConflict(c) { const f = (s) => s.some(sl => sl.name && checkSlotConflict(sl)); return c.split ? (f(c.odd) || f(c.even)) : f(c.slots); }
+        function checkSlotConflict(sl) { const s = students.find(x => x.name === sl.name); return s && s.gender === 'F' && sl.gender === 'M'; }
+        function splitCell(k) { const c = schedule[k]; c.split = true; c.odd = c.slots.map(s => ({ ...s })); c.even = c.slots.map(s => ({ ...s, name: null })); delete c.slots; renderAll(); }
+        function unsplitCell(k) { const c = schedule[k]; c.split = false; c.slots = c.odd.map(s => ({ ...s })); delete c.odd; delete c.even; renderAll(); }
+
+        function onSlotDragStart(e, el) {
+            const n = el.querySelector('.slot-name')?.textContent; if (!n || n === '待分配') { e.preventDefault(); return; }
+            dragSource = { type: 'cell', studentName: n, fromKey: el.dataset.key, fromIdx: parseInt(el.dataset.idx), fromWeek: el.dataset.week || null };
+            e.dataTransfer.setData('text/plain', n);
+        }
+
+        function onDrop(e, el, k, idx, w) {
+            e.preventDefault(); el.classList.remove('drag-over-slot');
+            const n = e.dataTransfer.getData('text/plain'), s = students.find(x => x.name === n && x.active);
+            if (!s) { toast('该学生未参与排班', 'warn'); return; }
+            const c = schedule[k], slts = w ? c[w] : c.slots, sl = slts[idx];
+            if (dragSource && dragSource.type === 'cell') {
+                const src = schedule[dragSource.fromKey], srcs = dragSource.fromWeek ? src[dragSource.fromWeek] : src.slots;
+                if (srcs && srcs[dragSource.fromIdx]) srcs[dragSource.fromIdx].name = null;
+            }
+            const occ = sl.name; sl.name = n;
+            if (occ && dragSource && dragSource.type === 'cell') {
+                const src = schedule[dragSource.fromKey], srcs = dragSource.fromWeek ? src[dragSource.fromWeek] : src.slots;
+                if (srcs && srcs[dragSource.fromIdx]) srcs[dragSource.fromIdx].name = occ;
+            } dragSource = null; renderAll();
+        }
+
+        function removeFromSlot(k, i, w) { const c = schedule[k], slts = w ? c[w] : c.slots; if (slts[i]) slts[i].name = null; renderAll(); }
+
+        function runScheduler() {
+            const active = students.filter(s => s.active); if (!active.length) { toast('请先添加并勾选学生', 'warn'); return; }
+            for (const k in schedule) { const c = schedule[k]; if (c.split) ['odd', 'even'].forEach(w => c[w].forEach(s => s.name = null)); else c.slots.forEach(s => s.name = null); }
+            const pos = [];
+            for (const k in schedule) { const c = schedule[k]; if (c.split) ['odd', 'even'].forEach(w => c[w].forEach((sl, i) => pos.push({ key: k, week: w, idx: i, g: sl.gender }))); else c.slots.forEach((sl, i) => pos.push({ key: k, week: null, idx: i, g: sl.gender })); }
+
+            // count active free slots based on settings
+            const ac = active.map(s => {
+                const aFree = s.freeSlots.filter(fs => activeSegKeys.some(k => fs.endsWith(`-${k}`)));
+                return { ...s, activeFreeLength: aFree.length };
+            });
+
+            const sorted = [...ac].sort((a, b) => a.activeFreeLength - b.activeFreeLength);
+            const asc = {}; ac.forEach(s => asc[s.name] = 0);
+            const mPos = pos.filter(p => p.g === 'M'), fPos = pos.filter(p => p.g === 'F');
+            const ms = sorted.filter(s => s.gender === 'M'), fs = sorted.filter(s => s.gender === 'F');
+
+            assign(mPos, ms, asc); assign(fPos, fs, asc);
+            const unf = fPos.filter(p => !(p.week ? schedule[p.key][p.week] : schedule[p.key].slots)[p.idx].name);
+            if (unf.length) assign(unf, [...ms].sort((a, b) => asc[a.name] - asc[b.name]), asc);
+            renderAll(); toast('排班完成', 'success');
+        }
+
+        function assign(pos, cands, asc) {
+            const da = {}; cands.forEach(s => da[s.name] = new Set());
+            for (const p of pos) {
+                const s = p.week ? schedule[p.key][p.week] : schedule[p.key].slots; if (s[p.idx].name) continue;
+                const dk = p.key.split('-')[0];
+                const a = cands.filter(x => !da[x.name]?.has(dk)).sort((x, y) => (asc[x.name] !== asc[y.name] ? asc[x.name] - asc[y.name] : x.activeFreeLength - y.activeFreeLength));
+                const pk = a[0] || cands.sort((x, y) => asc[x.name] - asc[y.name])[0];
+                if (pk) { s[p.idx].name = pk.name; asc[pk.name] += (p.week ? 0.5 : 1); da[pk.name]?.add(dk); }
+            }
+        }
+
+        function continueSchedule() { /* similar logic as run, skipped for brevity, just keeping original code refactoring */
+            const active = students.filter(s => s.active); if (!active.length) return;
+            const ac = {}; active.forEach(s => ac[s.name] = countAssignments(s.name));
+            const pos = [];
+            for (const k in schedule) {
+                const c = schedule[k];
+                if (c.split) ['odd', 'even'].forEach(w => c[w].forEach((sl, i) => { if (!sl.name) pos.push({ key: k, week: w, idx: i, g: sl.gender }) }));
+                else c.slots.forEach((sl, i) => { if (!sl.name) pos.push({ key: k, week: null, idx: i, g: sl.gender }) });
+            }
+            const acm = active.map(s => { const aFree = s.freeSlots.filter(fs => activeSegKeys.some(k => fs.endsWith(`-${k}`))); return { ...s, activeFreeLength: aFree.length }; });
+            const sorted = [...acm].sort((a, b) => a.activeFreeLength - b.activeFreeLength);
+            assign(pos.filter(p => p.g === 'M'), sorted.filter(s => s.gender === 'M'), ac);
+            assign(pos.filter(p => p.g === 'F'), sorted.filter(s => s.gender === 'F'), ac);
+            renderAll(); toast('增量填充完成', 'success');
+        }
+
+        // ======================= MODALS AND settings ========================
+        function openImport() { document.getElementById('import-overlay').classList.add('open') }
+        function closeImport() { document.getElementById('import-overlay').classList.remove('open') }
+        document.getElementById('import-overlay').onclick = e => { if (e.target === e.currentTarget) closeImport() };
+        document.getElementById('settings-overlay').onclick = e => { if (e.target === e.currentTarget) closeSettings() };
+
+        function openSettings() {
+            const g = document.getElementById('settings-segments'); g.innerHTML = '';
+            ALL_SEGS.forEach(s => {
+                const ck = activeSegKeys.includes(s.key);
+                g.innerHTML += `<label class="checkbox-label ${ck ? 'active' : ''}">
+      <input type="checkbox" value="${s.key}" ${ck ? 'checked' : ''} onchange="this.parentElement.classList.toggle('active', this.checked)">
+      ${s.label} (${s.time})
+    </label>`;
+            });
+            document.getElementById('settings-overlay').classList.add('open');
+        }
+        function closeSettings() { document.getElementById('settings-overlay').classList.remove('open') }
+        function saveSettings() {
+            const cb = document.querySelectorAll('#settings-segments input:checked');
+            activeSegKeys = Array.from(cb).map(i => i.value);
+            buildEmptySchedule(); renderAll(); closeSettings(); toast('设置已更新', 'success');
+        }
+
+        function handleFileInput(e) { const f = e.target.files[0]; if (f) processFile(f); e.target.value = ''; }
+
+        function processFile(file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const d = new Uint8Array(e.target.result); const wb = XLSX.read(d, { type: 'array' });
+                const js = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 });
+
+                // Find header
+                let hr = -1;
+                for (let r = 0; r < Math.min(js.length, 5); r++) { if (js[r].some(c => typeof c === 'string' && (c.includes('周一') || c.includes('星期')))) { hr = r; break; } }
+                if (hr === -1) { toast('解析表头失败', 'error'); return; }
+
+                // map columns to DAY_KEYS
+                const dc = {}; js[hr].forEach((c, i) => {
+                    if (c && typeof c === 'string') {
+                        const idx = DAYS.findIndex(d => c.includes(d)); if (idx !== -1) dc[i] = DAY_KEYS[idx];
+                    }
+                });
+
+                // map rows to ALL_SEGS keys via Regex heuristic on time strings
+                const rc = {};
+                for (let r = hr + 1; r < js.length; r++) {
+                    const t = (js[r][0] || '').toString().replace(/\s+/g, '');
+                    if (t) {
+                        // match segment from ALL_SEGS by checking if 1-2, 3-4 etc exists in text
+                        for (const s of ALL_SEGS) {
+                            const m = s.label.replace('节', '');
+                            if (t.includes(m) || t.includes(s.time.replace(/\s+/g, ''))) { rc[r] = s.key; break; }
+                        }
+                    } else if (r > 0 && rc[r - 1]) rc[r] = rc[r - 1]; // merging
+                }
+
+                let rg = /([\u4e00-\u9fa5A-Za-z]+)\s*(?:\([^)]*\))?/g;
+                for (let r = hr + 1; r < js.length; r++) {
+                    if (!rc[r]) continue;
+                    for (const ci in dc) {
+                        const dk = dc[ci], sk = rc[r];
+                        const val = (js[r][ci] || '').toString().trim();
+                        let m; while ((m = rg.exec(val)) !== null) {
+                            addStudent(m[1].trim(), 'M', [`${dk}-${sk}`]);
+                        }
+                    }
+                }
+                closeImport(); toast('解析Excel完毕', 'success');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function renderFooter() {
+            let [fl, t] = [0, 0];
+            for (const k in schedule) {
+                const c = schedule[k], wk = c.split ? ['odd', 'even'] : [null];
+                for (const w of wk) { const s = w ? c[w] : c.slots; for (const sl of s) { t++; if (sl.name) fl++; } }
+            }
+            const active = students.filter(s => s.active);
+            const m = active.filter(s => s.gender === 'M').length;
+            const f = active.filter(s => s.gender === 'F').length;
+            document.getElementById('stat-male').textContent = `男生人数: ${m}`; document.getElementById('stat-female').textContent = `女生人数: ${f}`;
+            document.getElementById('stat-filled').textContent = `已排班: ${t ? Math.round(fl / t * 100) : 0}%`;
+        }
+
+        function exportCSV() {
+            const rs = [['时间段'].concat(DAYS)];
+            getActiveSegs().forEach(seg => {
+                const mr = [seg.label + '(男)'], fr = [seg.label + '(女)'];
+                DAY_KEYS.forEach(d => {
+                    const c = schedule[`${d}-${seg.key}`];
+                    if (c && c.split) { mr.push(`单:${c.odd.find(s => s.gender === 'M')?.name || ''} 双:${c.even.find(s => s.gender === 'M')?.name || ''}`); fr.push(`单:${c.odd.find(s => s.gender === 'F')?.name || ''} 双:${c.even.find(s => s.gender === 'F')?.name || ''}`); }
+                    else if (c) { mr.push(c.slots.find(s => s.gender === 'M')?.name || ''); fr.push(c.slots.find(s => s.gender === 'F')?.name || ''); }
+                    else { mr.push(''); fr.push(''); }
+                }); rs.push(mr, fr);
+            });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\uFEFF' + rs.map(r => r.map(c => `"${c}"`).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' }));
+            a.download = '排班表.csv'; a.click();
+        }
+        function saveSchedule() { localStorage.setItem('schedule_data', JSON.stringify({ students, schedule, activeSegKeys })); toast('保存成功'); }
+        function tryRestore() { const s = localStorage.getItem('schedule_data'); if (s) { try { const p = JSON.parse(s); if (p.activeSegKeys) activeSegKeys = p.activeSegKeys; students = p.students || []; Object.assign(schedule, p.schedule || {}); return true; } catch { return false; } } return false; }
+
+        init(); if (!tryRestore()) { } renderAll();
+    </script>
+</body>
+
+</html>
