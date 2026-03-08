@@ -403,14 +403,16 @@ function executeScheduling(isContinue) {
         return { ...s, activeFreeLength: aFree.length, assigned: assignedCount[s.name] };
     });
 
-    // 调试：查看学生空闲时间格式
-    if (active.length > 0) {
-        console.log('第一个学生原始freeSlots:', active[0].freeSlots);
-        console.log('第一个学生处理后freeSlots:', acm[0].freeSlots);
-        console.log('第一个学生activeFreeLength:', acm[0].activeFreeLength);
-        console.log('当前激活的时间段:', activeSegKeys);
-        console.log('allSlots示例:', allSlots.slice(0, 2));
-    }
+    // 调试信息
+    console.log('激活的日期数:', activeDayKeys.length, activeDayKeys);
+    console.log('激活的时间段数:', activeSegKeys.length, activeSegKeys);
+    console.log('schedule对象的key数:', Object.keys(schedule).length);
+    console.log('schedule对象示例:', Object.keys(schedule).slice(0, 5));
+    console.log('allSlots总数:', allSlots.length);
+    console.log('minSlots数:', allSlots.filter(s => s.isMin).length);
+    console.log('maxSlots数:', allSlots.filter(s => !s.isMin).length);
+    console.log('slotMin:', slotMin, 'slotMax:', slotMax);
+    console.log('distinguishGender:', distinguishGender);
 
     const minSlots = allSlots.filter(s => s.isMin);
     const maxSlots = allSlots.filter(s => !s.isMin);
