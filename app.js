@@ -1,4 +1,4 @@
-const ALL_SEGS = [
+﻿const ALL_SEGS = [
     { key: 'seg1', label: '1-2节', time: '09:00-10:20' },
     { key: 'seg2', label: '3-4节', time: '10:40-12:00' },
     { key: 'seg3', label: '5-6节', time: '12:30-13:50' },
