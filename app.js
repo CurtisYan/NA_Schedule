@@ -12,6 +12,7 @@ let activeSegKeys = ['seg4', 'seg5']; // default 7-8, 9-10
 let slotMin = 1;
 let slotMax = 1;
 let distinguishGender = true;
+let scheduleMode = 'NA'; // 'NA' or 'Custom'
 
 let DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 let DAYS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
@@ -795,8 +796,8 @@ function exportCSV() {
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\uFEFF' + rs.map(r => r.map(c => `"${c}"`).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' }));
     a.download = '排班表.csv'; a.click();
 }
-function saveSchedule() { localStorage.setItem('schedule_data', JSON.stringify({ students, schedule, activeSegKeys, activeDayKeys, slotMin, slotMax, distinguishGender })); toast('保存成功'); }
-function tryRestore() { const s = localStorage.getItem('schedule_data'); if (s) { try { const p = JSON.parse(s); if (p.activeSegKeys) activeSegKeys = p.activeSegKeys; if (p.activeDayKeys) activeDayKeys = p.activeDayKeys; if (p.slotMin !== undefined) slotMin = p.slotMin; if (p.slotMax !== undefined) slotMax = p.slotMax; if (p.distinguishGender !== undefined) distinguishGender = p.distinguishGender; students = p.students || []; Object.assign(schedule, p.schedule || {}); return true; } catch { return false; } } return false; }
+function saveSchedule() { localStorage.setItem('schedule_data', JSON.stringify({ students, schedule, activeSegKeys, activeDayKeys, slotMin, slotMax, distinguishGender, scheduleMode })); toast('保存成功'); }
+function tryRestore() { const s = localStorage.getItem('schedule_data'); if (s) { try { const p = JSON.parse(s); if (p.activeSegKeys) activeSegKeys = p.activeSegKeys; if (p.activeDayKeys) activeDayKeys = p.activeDayKeys; if (p.slotMin !== undefined) slotMin = p.slotMin; if (p.slotMax !== undefined) slotMax = p.slotMax; if (p.distinguishGender !== undefined) distinguishGender = p.distinguishGender; if (p.scheduleMode) scheduleMode = p.scheduleMode; students = p.students || []; Object.assign(schedule, p.schedule || {}); return true; } catch { return false; } } return false; }
 
 init(); if (!tryRestore()) { } renderAll();
 
@@ -817,7 +818,7 @@ window.addEventListener('dragover', e => e.preventDefault());
 window.addEventListener('drop', e => e.preventDefault());
 
 window.addEventListener('beforeunload', e => {
-    const current = JSON.stringify({ students, schedule, activeSegKeys, activeDayKeys, slotMin, slotMax, distinguishGender });
+    const current = JSON.stringify({ students, schedule, activeSegKeys, activeDayKeys, slotMin, slotMax, distinguishGender, scheduleMode });
     const saved = localStorage.getItem('schedule_data');
     if (students.length > 0 && current !== saved) {
         e.preventDefault();
