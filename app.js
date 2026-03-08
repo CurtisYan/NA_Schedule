@@ -280,6 +280,13 @@ function isFreeFor(student, slotKey, slotWeek) {
 }
 
 function fillSlots(slots, studentsObj, enforceMin, assignmentsByDay) {
+    console.log('fillSlots被调用, slots数量:', slots.length, 'studentsObj数量:', studentsObj.length);
+    if (slots.length > 0) {
+        console.log('第一个slot:', slots[0]);
+    }
+    if (studentsObj.length > 0) {
+        console.log('第一个学生:', studentsObj[0].name, 'freeSlots数量:', studentsObj[0].freeSlots.length);
+    }
     let remainingSlots = [...slots];
     let slotsByPos = {};
     remainingSlots.forEach(s => {
@@ -312,6 +319,25 @@ function fillSlots(slots, studentsObj, enforceMin, assignmentsByDay) {
             // 例如：slotMax=1（一周一班）、slotMax=1.5（两周三班）、slotMax=2（一周两班）
             if (scheduleMode === 'NA') {
                 cands = cands.filter(s => s.assigned < slotMax);
+            }
+            
+            // 调试候选人过滤
+            if (slotGroup.length > 0 && cands.length === 0) {
+                console.log('位置', id, '没有候选人!');
+                console.log('  firstSlot.key:', firstSlot.key);
+                console.log('  firstSlot.g:', firstSlot.g);
+                console.log('  firstSlot.week:', firstSlot.week);
+                console.log('  过滤前学生数:', studentsObj.length);
+                // 测试每个过滤条件
+                let test1 = studentsObj.filter(s => firstSlot.g === 'none' || s.gender === firstSlot.g);
+                console.log('  性别匹配的学生数:', test1.length);
+                let test2 = test1.filter(s => !cellNames.includes(s.name));
+                console.log('  不在格子里的学生数:', test2.length);
+                let test3 = test2.filter(s => isFreeFor(s, firstSlot.key, firstSlot.week));
+                console.log('  空闲时间匹配的学生数:', test3.length);
+                if (test2.length > 0 && test3.length === 0) {
+                    console.log('  第一个学生的freeSlots:', test2[0].freeSlots.slice(0, 5));
+                }
             }
             
             posCandidates.push({ id, slots: slotGroup, cands, dayKey });
