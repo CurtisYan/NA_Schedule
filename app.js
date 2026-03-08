@@ -1,4 +1,4 @@
-﻿const ALL_SEGS = [
+const ALL_SEGS = [
     { key: 'seg1', label: '1-2节', time: '09:00-10:20' },
     { key: 'seg2', label: '3-4节', time: '10:40-12:00' },
     { key: 'seg3', label: '5-6节', time: '12:30-13:50' },
@@ -164,7 +164,7 @@ function renderPool() {
         if (hc) { d.style.borderColor = 'var(--danger)'; d.style.background = 'var(--danger-bg)'; }
         let sc = 'ok', st = `${c}班`;
         if (hc) { sc = 'conflict'; st = '冲突'; } else if (c >= max && max > 0) { sc = 'overload'; }
-        d.innerHTML = `<span class="material-symbols-outlined ${s.gender === 'M' ? 'male' : 'female'}" style="color:var(--${s.gender === 'M' ? 'male' : 'female'}-text)">${s.gender === 'M' ? 'male' : 'female'}</span><span class="chip-name">${s.name}</span><span class="chip-stat ${sc}">${st}</span>`;
+        d.innerHTML = `<span class="material-symbols-outlined ${s.gender === 'M' ? 'male' : 'female'}" style="color:var(--${s.gender === 'M' ? 'male' : 'female'}-text)">${s.gender === 'M' ? 'male' : 'female'}</span><span class="chip-name">${s.name}</span><span class="chip-stat ${sc}">${st}</span><button class="chip-delete-btn" onclick="event.stopPropagation(); deleteStudent(${s.id})" title="删除"><span class="material-symbols-outlined">close</span></button>`;
         d.onclick = () => openFreeTime(s.name);
         d.ondragstart = e => { dragSource = { type: 'pool', studentName: s.name }; e.dataTransfer.setData('text/plain', s.name); };
         p.appendChild(d);
@@ -898,3 +898,6 @@ window.addEventListener('beforeunload', e => {
         e.returnValue = '';
     }
 });
+function deleteStudent(id) { const student = students.find(s => s.id === id); if (!student) return; students = students.filter(s => s.id !== id); clearStudentFromSchedule(student.name); renderAll(); toast('已删除 ' + student.name, 'success'); }
+
+function clearAll() { if (confirm('确定要清空所有数据吗？此操作不可恢复！')) { students = []; schedule = {}; localStorage.removeItem('schedule_data'); buildEmptySchedule(); renderAll(); toast('已清空所有数据', 'success'); } }
