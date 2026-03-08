@@ -190,11 +190,11 @@
             line-height: 1.5;
             position: absolute;
             z-index: 10000;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
+            top: 50%;
+            left: calc(100% + 8px);
+            transform: translateY(-50%);
             opacity: 0;
-            transition: opacity 0.2s, bottom 0.2s;
+            transition: opacity 0.2s;
             pointer-events: none;
             white-space: normal;
             box-shadow: var(--shadow-md);
@@ -204,7 +204,7 @@
             content: "";
             position: absolute;
             top: 100%;
-            left: 50%;
+            left: calc(100% + 8px);
             margin-left: -5px;
             border-width: 5px;
             border-style: solid;
