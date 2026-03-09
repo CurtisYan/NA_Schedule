@@ -237,8 +237,8 @@ function clearSlotSelection() {
 }
 function renderCell(k, c, id) {
     const hc = checkCellConflict(c), cc = hc ? ' conflict' : '';
-    const head = `<div class="cell-header">${hc ? `<span class="cell-conflict-label">冲突</span>` : `<span class="cell-id">#${String(id).padStart(3, '0')}</span>`}<button class="split-btn" onclick="${c.split ? `unsplitCell('${k}')` : `splitCell('${k}')`}">${c.split ? '合并' : '单双周'}</button></div>`;
-    if (c.split) return `<div class="sched-cell${cc}" data-key="${k}">${head}<div class="slots-split"><div class="split-col"><div class="split-week-label">单周</div>${c.odd.map((sl, i) => renderSlotRow(sl, k, i, 'odd')).join('')}</div><div class="split-col"><div class="split-week-label">双周</div>${c.even.map((sl, i) => renderSlotRow(sl, k, i, 'even')).join('')}</div></div></div>`;
+    const head = `<div class="cell-header" onclick="selectSlot('${k}')" style="cursor:pointer;" title="点击查看该时段有空的同学">${hc ? `<span class="cell-conflict-label">冲突</span>` : `<span class="cell-id">#${String(id).padStart(3, '0')}</span>`}<button class="split-btn" onclick="event.stopPropagation();${c.split ? `unsplitCell('${k}')` : `splitCell('${k}')`}">${c.split ? '合并' : '单双周'}</button></div>`;
+    if (c.split) return `<div class="sched-cell${cc}" data-key="${k}">${head}<div class="slots-split"><div class="split-col"><div class="split-week-label" onclick="selectSlot('${k}', 'odd')" style="cursor:pointer;" title="点击查看单周有空的同学">单周</div>${c.odd.map((sl, i) => renderSlotRow(sl, k, i, 'odd')).join('')}</div><div class="split-col"><div class="split-week-label" onclick="selectSlot('${k}', 'even')" style="cursor:pointer;" title="点击查看双周有空的同学">双周</div>${c.even.map((sl, i) => renderSlotRow(sl, k, i, 'even')).join('')}</div></div></div>`;
     return `<div class="sched-cell${cc}" data-key="${k}">${head}<div class="slots-container">${c.slots.map((sl, i) => renderSlotRow(sl, k, i)).join('')}</div></div>`;
 }
 
