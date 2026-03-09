@@ -21,6 +21,7 @@ let activeDayKeys = ['mon', 'tue', 'wed', 'thu', 'fri'];
 let students = [];
 let schedule = {};
 let dragSource = null;
+let selectedSlot = null; // 当前选中的时段，用于高亮显示有空的同学
 
 function getActiveSegs() { return ALL_SEGS.filter(s => activeSegKeys.includes(s.key)); }
 function getActiveDays() { return DAY_KEYS.filter(k => activeDayKeys.includes(k)); }
@@ -211,6 +212,29 @@ function renderScheduleTable() {
     });
 }
 
+
+function selectSlot(key, week = null) {
+    selectedSlot = { key, week };
+    // 移除所有格子的选中状态
+    document.querySelectorAll('.sched-cell').forEach(cell => {
+        cell.classList.remove('cell-selected');
+    });
+    // 添加当前格子的选中状态
+    const cellKey = week ? `${key}-${week}` : key;
+    const cell = document.querySelector(`.sched-cell[data-key="${key}"]`);
+    if (cell) {
+        cell.classList.add('cell-selected');
+    }
+    renderPool();
+}
+
+function clearSlotSelection() {
+    selectedSlot = null;
+    document.querySelectorAll('.sched-cell').forEach(cell => {
+        cell.classList.remove('cell-selected');
+    });
+    renderPool();
+}
 function renderCell(k, c, id) {
     const hc = checkCellConflict(c), cc = hc ? ' conflict' : '';
     const head = `<div class="cell-header">${hc ? `<span class="cell-conflict-label">冲突</span>` : `<span class="cell-id">#${String(id).padStart(3, '0')}</span>`}<button class="split-btn" onclick="${c.split ? `unsplitCell('${k}')` : `splitCell('${k}')`}">${c.split ? '合并' : '单双周'}</button></div>`;
@@ -921,3 +945,13 @@ window.addEventListener('beforeunload', e => {
 function deleteStudent(id) { const student = students.find(s => s.id === id); if (!student) return; students = students.filter(s => s.id !== id); clearStudentFromSchedule(student.name); renderAll(); toast('已删除 ' + student.name, 'success'); }
 
 function clearAll() { if (confirm('确定要清空所有数据吗？此操作不可恢复！')) { students = []; schedule = {}; localStorage.removeItem('schedule_data'); buildEmptySchedule(); renderAll(); toast('已清空所有数据', 'success'); } }
+
+// 点击空白区域取消选择
+document.addEventListener('click', (e) => {
+    // 如果点击的不是排班表格子或人员池，则取消选择
+    if (!e.target.closest('.sched-cell') && !e.target.closest('.pool-chips') && !e.target.closest('.cell-header') && !e.target.closest('.split-week-label')) {
+        if (selectedSlot) {
+            clearSlotSelection();
+        }
+    }
+});

@@ -591,6 +591,22 @@
             min-height: 90px;
         }
 
+        .sched-cell.cell-selected {
+            border-color: var(--primary);
+            border-width: 2px;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            background: #eff6ff;
+        }
+
+        .sched-cell.cell-selected .cell-header {
+            background: var(--primary);
+            color: white;
+        }
+
+        .sched-cell.cell-selected .cell-id {
+            color: white;
+        }
+
         .cell-header {
             display: flex;
             align-items: center;
@@ -598,6 +614,11 @@
             padding: 6px 8px;
             border-bottom: 1px solid var(--border);
             background: #f8fafc;
+            transition: all 0.2s;
+        }
+
+        .cell-header:hover {
+            background: #e2e8f0;
         }
 
         .cell-id {
