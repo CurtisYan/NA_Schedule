@@ -872,7 +872,8 @@ function processFile(file) {
                 const dk = dc[ci], sk = rc[r];
                 const val = (js[r][ci] || '').toString().trim();
                 let m; while ((m = rg.exec(val)) !== null) {
-                    let weekStr = m[2] ? `|${m[2]}` : '';
+                    // 处理周次：有括号才是特定周次，没括号默认1-18周
+                    let weekStr = m[2] ? `|${m[2]}` : '|1-18周';
                     let name = m[1].trim();
                     // 简单的性别判断：根据常见女性名字特征
                     let gender = 'M'; // 默认男生
