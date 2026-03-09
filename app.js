@@ -162,7 +162,21 @@ function renderPool() {
         const hc = checkStudentConflict(s);
         const d = document.createElement('div');
         d.className = `person-chip${hc ? ' chip-conflict' : ''}`; d.draggable = true; d.dataset.name = s.name;
-        if (hc) { d.style.borderColor = 'var(--danger)'; d.style.background = 'var(--danger-bg)'; }
+        
+        // 检查是否在选中的时段有空
+        const isFreeInSelected = selectedSlot && isFreeFor(s, selectedSlot.key, selectedSlot.week);
+        
+        if (hc) { 
+            d.style.borderColor = 'var(--danger)'; 
+            d.style.background = 'var(--danger-bg)'; 
+        } else if (isFreeInSelected) {
+            // 高亮显示有空的同学
+            d.style.borderColor = 'var(--primary)';
+            d.style.background = '#eff6ff';
+            d.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.2)';
+            d.style.transform = 'scale(1.02)';
+        }
+        
         let sc = 'ok', st = `${c}班`;
         if (hc) { sc = 'conflict'; st = '冲突'; } else if (c >= max && max > 0) { sc = 'overload'; }
         d.innerHTML = `<span class="material-symbols-outlined ${s.gender === 'M' ? 'male' : 'female'}" style="color:var(--${s.gender === 'M' ? 'male' : 'female'}-text)">${s.gender === 'M' ? 'male' : 'female'}</span><span class="chip-name">${s.name}</span><span class="chip-stat ${sc}">${st}</span><button class="chip-delete-btn" onclick="event.stopPropagation(); deleteStudent(${s.id})" title="删除"><span class="material-symbols-outlined">close</span></button>`;
@@ -238,8 +252,8 @@ function clearSlotSelection() {
 function renderCell(k, c, id) {
     const hc = checkCellConflict(c), cc = hc ? ' conflict' : '';
     const head = `<div class="cell-header" onclick="selectSlot('${k}')" style="cursor:pointer;" title="点击查看该时段有空的同学">${hc ? `<span class="cell-conflict-label">冲突</span>` : `<span class="cell-id">#${String(id).padStart(3, '0')}</span>`}<button class="split-btn" onclick="event.stopPropagation();${c.split ? `unsplitCell('${k}')` : `splitCell('${k}')`}">${c.split ? '合并' : '单双周'}</button></div>`;
-    if (c.split) return `<div class="sched-cell${cc}" data-key="${k}">${head}<div class="slots-split"><div class="split-col"><div class="split-week-label" onclick="selectSlot('${k}', 'odd')" style="cursor:pointer;" title="点击查看单周有空的同学">单周</div>${c.odd.map((sl, i) => renderSlotRow(sl, k, i, 'odd')).join('')}</div><div class="split-col"><div class="split-week-label" onclick="selectSlot('${k}', 'even')" style="cursor:pointer;" title="点击查看双周有空的同学">双周</div>${c.even.map((sl, i) => renderSlotRow(sl, k, i, 'even')).join('')}</div></div></div>`;
-    return `<div class="sched-cell${cc}" data-key="${k}">${head}<div class="slots-container">${c.slots.map((sl, i) => renderSlotRow(sl, k, i)).join('')}</div></div>`;
+    if (c.split) return `<div class="sched-cell${cc}" data-key="${k}" onclick="selectSlot('${k}')" style="cursor:pointer;">${head}<div class="slots-split"><div class="split-col" onclick="event.stopPropagation(); selectSlot('${k}', 'odd')" style="cursor:pointer;" title="点击查看单周有空的同学"><div class="split-week-label">单周</div>${c.odd.map((sl, i) => renderSlotRow(sl, k, i, 'odd')).join('')}</div><div class="split-col" onclick="event.stopPropagation(); selectSlot('${k}', 'even')" style="cursor:pointer;" title="点击查看双周有空的同学"><div class="split-week-label">双周</div>${c.even.map((sl, i) => renderSlotRow(sl, k, i, 'even')).join('')}</div></div></div>`;
+    return `<div class="sched-cell${cc}" data-key="${k}" onclick="selectSlot('${k}')" style="cursor:pointer;">${head}<div class="slots-container">${c.slots.map((sl, i) => renderSlotRow(sl, k, i)).join('')}</div></div>`;
 }
 
 function renderSlotRow(sl, k, idx, w = null) {
