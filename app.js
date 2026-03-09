@@ -303,21 +303,34 @@ function fillSlots(slots, studentsObj, enforceMin, assignmentsByDay) {
             const firstSlot = slotGroup[0];
             const dayKey = firstSlot.key.split('-')[0];
             const cellNames = firstSlot.cell.map(x => x.name).filter(Boolean);
-            let cands = studentsObj.filter(s =>
-                (firstSlot.g === 'none' || s.gender === firstSlot.g) &&
-                !cellNames.includes(s.name) &&
-                isFreeFor(s, firstSlot.key, firstSlot.week)
-            );
+            let cands = studentsObj.filter(s => {
+                // NA模式下，女生区允许男生作为备选
+                const genderMatch = firstSlot.g === 'none' || s.gender === firstSlot.g || 
+                    (scheduleMode === 'NA' && firstSlot.g === 'F' && s.gender === 'M');
+                return genderMatch && !cellNames.includes(s.name) && isFreeFor(s, firstSlot.key, firstSlot.week);
+            });
             
-            // NA模式规则：女生不能去男生区
-            if (scheduleMode === 'NA' && firstSlot.g === 'M') {
-                cands = cands.filter(s => s.gender === 'M');
-            }
-            
-            // NA模式规则：班次限制
-            // 直接使用slotMax作为每人最多班次（支持0.5单位）
-            // 例如：slotMax=1（一周一班）、slotMax=1.5（两周三班）、slotMax=2（一周两班）
+            // NA模式规则
             if (scheduleMode === 'NA') {
+                if (firstSlot.g === 'M') {
+                    // 男生区：只允许男生（严格限制）
+                    cands = cands.filter(s => s.gender === 'M');
+                } else if (firstSlot.g === 'F') {
+                    // 女生区：优先女生，但允许男生（如果女生不够或男生稀缺性更高）
+                    const femaleCands = cands.filter(s => s.gender === 'F');
+                    const maleCands = cands.filter(s => s.gender === 'M');
+                    
+                    if (femaleCands.length === 0 && maleCands.length > 0) {
+                        // 没有女生可用，只能用男生
+                        cands = maleCands;
+                    } else if (femaleCands.length > 0) {
+                        // 有女生可用，优先使用女生
+                        // 但保留男生作为备选（通过排序来控制优先级）
+                        cands = [...femaleCands, ...maleCands];
+                    }
+                }
+                
+                // 班次限制
                 cands = cands.filter(s => s.assigned < slotMax);
             }
             
@@ -349,6 +362,13 @@ function fillSlots(slots, studentsObj, enforceMin, assignmentsByDay) {
             continue;
         }
         targetPos.cands.sort((a, b) => {
+            // NA模式女生区：女生优先
+            if (scheduleMode === 'NA' && targetPos.slots.length > 0 && targetPos.slots[0].g === 'F') {
+                const aIsFemale = a.gender === 'F' ? 1 : 0;
+                const bIsFemale = b.gender === 'F' ? 1 : 0;
+                if (aIsFemale !== bIsFemale) return bIsFemale - aIsFemale;
+            }
+            
             const aSameDay = assignmentsByDay[a.name].has(targetPos.dayKey) ? 1 : 0;
             const bSameDay = assignmentsByDay[b.name].has(targetPos.dayKey) ? 1 : 0;
             if (aSameDay !== bSameDay) return aSameDay - bSameDay;
