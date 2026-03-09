@@ -190,9 +190,8 @@
             line-height: 1.5;
             position: absolute;
             z-index: 10000;
-            top: 60%;
-            left: calc(100% + 8px);
-            transform: translateY(-50%);
+            top: calc(100% + 8px);
+            right: 0;
             opacity: 0;
             transition: opacity 0.2s;
             pointer-events: none;
@@ -203,8 +202,8 @@
         .tooltip-text::after {
             content: "";
             position: absolute;
-            top: 100%;
-            left: calc(100% + 8px);
+            bottom: 100%;
+            right: 10px;
             margin-left: -5px;
             border-width: 5px;
             border-style: solid;
@@ -214,7 +213,6 @@
         .tooltip-wrapper:hover .tooltip-text {
             visibility: visible;
             opacity: 1;
-            top: calc(100% - 2px);
         }
 
         main {
