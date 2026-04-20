@@ -1,3 +1,4 @@
+>本项目采用Hugging Face Space部署，最新代码请参考[Hugging Face](https://huggingface.co/spaces/curtisyan/NA_Schedule)仓库地址
 # NA排班系统
 
 一个简单的排班工具，帮你快速安排学生值班。
