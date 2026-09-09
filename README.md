@@ -1,5 +1,5 @@
 >本项目采用Hugging Face Space部署，最新代码请参考[Hugging Face](https://huggingface.co/spaces/curtisyan/NA_Schedule)仓库地址<br>
-点击[入口1](https://curtisyan-na-schedule.static.hf.space)在线访问（需代理），[入口2](https://www.asiay.asia:8080/)（无需代理）
+点击[入口1](https://curtisyan-na-schedule.static.hf.space)在线访问（需代理），[入口2](https://112.74.51.206:8080/)（无需代理）
 
 # NA排班系统
 
